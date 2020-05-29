@@ -1,0 +1,60 @@
+<style>
+
+body {
+    font-family: monospace;
+
+    background-image: url("images/llama-backdrop.jpg");
+}
+
+.center-div {
+    text-align: center;
+    margin-top: 20%;
+}
+
+.display-name-label {
+    font-size: x-large;
+}
+
+.display-name-field {
+    padding: 3px;
+    border: 2px solid black;
+    border-radius: 3px;
+}
+
+</style>
+
+<body>
+
+    <div class="center-div">
+
+        <label class="display-name-label">Display Name:</label> 
+        <br>
+        <br>
+        <br>
+        <input id="display-name-field" class="display-name-field" type="text" placeholder="Username"/>
+        <br>
+        <br>
+        <button id="display-name-submit"> Enter </button>
+
+    </div>
+
+</body>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+
+    var socket = io();
+
+    // display name
+    var displayNameField = document.getElementById('display-name-field');
+    var displayNameSubmit = document.getElementById('display-name-submit');
+
+    displayNameSubmit.onclick = function() {
+        let displayName = displayNameField.value;
+
+        if (displayName) {
+            socket.emit('user-enter-request', {displayName: displayName});
+        }
+    };
+
+</script>

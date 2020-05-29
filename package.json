@@ -1,0 +1,23 @@
+{
+  "name": "llama-chat",
+  "version": "1.0.0",
+  "description": "web chat but only llamas",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benjaminpotter/llama-chat.git"
+  },
+  "author": "ben potter",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/benjaminpotter/llama-chat/issues"
+  },
+  "homepage": "https://github.com/benjaminpotter/llama-chat#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^2.3.0"
+  }
+}
