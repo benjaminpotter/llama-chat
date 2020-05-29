@@ -8,6 +8,9 @@ body {
 
 .center-div {
     text-align: center;
+}
+
+.display-name-form {
     margin-top: 20%;
 }
 
@@ -21,23 +24,75 @@ body {
     border-radius: 3px;
 }
 
+.chat {
+    display: none;
+}
+
+.chat-box {
+    margin: 0 auto;
+
+    width: 60%;
+    height: 70%;
+
+    border-radius: 5px;
+
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column-reverse;
+
+    background-color: white;
+}
+
+.message-box {
+    margin: 0 auto;
+
+    width: 60%;
+    height: 20%;
+
+    border-radius: 5px;
+
+    background-color: white;
+}
+
+.gif-option {
+    width: 30%;
+    height: 100%;
+
+    border-radius: 5px;
+}
+
 </style>
 
 <body>
 
     <div class="center-div">
+        <div id="display-name-form" class="display-name-form">
+            <label class="display-name-label">Display Name:</label> 
+            <br>
+            <br>
+            <br>
+            <input id="display-name-field" class="display-name-field" type="text" placeholder="Username"/>
+            <br>
+            <br>
+            <button id="display-name-submit"> Enter </button>
+        </div>
 
-        <label class="display-name-label">Display Name:</label> 
-        <br>
-        <br>
-        <br>
-        <input id="display-name-field" class="display-name-field" type="text" placeholder="Username"/>
-        <br>
-        <br>
-        <button id="display-name-submit"> Enter </button>
+        <div id="chat" class="chat">
 
+            <div id="chat-box" class="chat-box">
+
+            </div>
+    
+            <br>
+
+            <div class="message-box">
+                <img id="gif1" class="gif-option">
+                <img id="gif2" class="gif-option">                
+                <img id="gif3" class="gif-option">
+            </div>
+
+        </div>
     </div>
-
 </body>
 
 <script src="/socket.io/socket.io.js"></script>
@@ -45,7 +100,51 @@ body {
 
     var socket = io();
 
+    // chat
+    var chat = document.getElementById('chat');
+    var chatBox = document.getElementById('chat-box');
+
+    var gif1 = document.getElementById('gif1');
+    var gif2 = document.getElementById('gif2');
+    var gif3 = document.getElementById('gif3');
+
+    var gifs = [gif1, gif2, gif3];
+
+    gif1.onclick = gif2.onclick = gif3.onclick = function(event) {
+        socket.emit('sent-gif', {url: event.target.src});
+    };
+
+    const reloadGIFs = function(loaded) {
+
+        for (let i = 0; i < gifs.length; i++) {
+            gifs[i].src = '';
+
+            let oReq = new XMLHttpRequest();
+
+            oReq.onreadystatechange = function(e) {
+                if (oReq.readyState === 4) {
+                    var url = oReq.response.data.image_url;
+                    gifs[i].src = url;
+                    console.log(oReq.response.data);
+
+                    loaded(url);
+                }
+            }
+            oReq.open("GET", "http://api.giphy.com/v1/gifs/random?tag=llama&api_key=k3j5DxNUV9P5njlYxdmhAAceAE2t5mmp");
+            oReq.responseType = 'json';
+            oReq.send();
+        }
+    };
+
+    socket.on('recieve-gif', data => {
+        console.log('hellow?');
+        // draw the new image
+        chatBox.innerHTML = '<img src="' + data.url + '">' + chatBox.innerHTML;
+        reloadGIFs();
+    });
+
     // display name
+    var displayNameForm = document.getElementById('display-name-form');
     var displayNameField = document.getElementById('display-name-field');
     var displayNameSubmit = document.getElementById('display-name-submit');
 
@@ -53,8 +152,14 @@ body {
         let displayName = displayNameField.value;
 
         if (displayName) {
-            socket.emit('user-enter-request', {displayName: displayName});
+            socket.emit('enter-request', {displayName: displayName});
         }
     };
+
+    socket.on('enter-auth-success', () => {
+        displayNameForm.style = "display: none;";
+        chat.style = "display: block;";
+        reloadGIFs();
+    });
 
 </script>
