@@ -159,6 +159,7 @@ p {
 
     gif1.onclick = gif2.onclick = gif3.onclick = function(event) {
         socket.emit('sent-gif', {sender:displayName, url: event.target.src});
+        reloadGIFs();
     };
 
     const reloadGIFs = function(loaded) {
@@ -197,7 +198,6 @@ p {
 
     socket.on('recieve-gif', data => {
         displayGIF(data.sender, data.url);
-        reloadGIFs();
     });
 
     // display name
