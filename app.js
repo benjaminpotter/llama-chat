@@ -21,6 +21,10 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/client/index.html');
 });
 
+app.get('/faq', (req, res) => {
+    res.sendFile(__dirname + '/client/faq.html');
+});
+
 var http = app.listen(PORT, () => {
     console.log("Listening on: " + PORT);
 });
