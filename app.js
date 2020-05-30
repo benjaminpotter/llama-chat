@@ -25,6 +25,8 @@ var http = app.listen(PORT, () => {
     console.log("Listening on: " + PORT);
 });
 
+var history = [];
+
 const io = require('socket.io')(http);
 io.on('connection', (socket) => {
 
@@ -35,12 +37,12 @@ io.on('connection', (socket) => {
 
         // check validity
 
-        socket.emit('enter-auth-success');
+        socket.emit('enter-auth-success', {history: history});
     });
 
     socket.on('sent-gif', data => {
-        console.log('hellow?');
-        socket.emit('recieve-gif', {url: data.url});
+        history.push( data );
+        io.emit('recieve-gif', data);
     });
 
 });

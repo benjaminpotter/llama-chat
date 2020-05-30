@@ -1,3 +1,9 @@
+<head>
+    <title>Llama Chat</title>
+
+    <link rel="icon" href="images/llama.png">
+</head>
+
 <style>
 
 body {
@@ -56,31 +62,70 @@ body {
 
 .gif-option {
     width: 30%;
-    height: 100%;
+    height: 95%;
+
+    margin: 0.4%;
 
     border-radius: 5px;
+}
+
+.message {
+    text-align: center;
+
+    width: 80%;
+    height: 60%;
+
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+
+    margin-bottom: 3%;
+    border-radius: 10px;
+}
+
+p {
+    text-align: left;
+    padding-left: 10%;
+    font-size:larger;
+}
+
+.info-link {
+    display: block;
+    text-align: right;
+}
+
+.info-img {
+    width: 50px;
+    height: 50px;
 }
 
 </style>
 
 <body>
-
+    <!-- <a class="info-link" href="faq.html"><img class="info-img" src="images/info.png"></a> -->
     <div class="center-div">
         <div id="display-name-form" class="display-name-form">
-            <label class="display-name-label">Display Name:</label> 
+            <label class="display-name-label">Llama Chat</label> 
             <br>
             <br>
             <br>
-            <input id="display-name-field" class="display-name-field" type="text" placeholder="Username"/>
+            <input id="display-name-field" class="display-name-field" type="text" placeholder="Display Name"/>
+            <!-- <br>
+            <br> -->
+            <button id="display-name-submit" style="display: none;"> Enter </button>
             <br>
             <br>
-            <button id="display-name-submit"> Enter </button>
+            <a href="faq.html">Um, I have a question.</a>
         </div>
 
         <div id="chat" class="chat">
 
             <div id="chat-box" class="chat-box">
+                <div>
 
+                    <p style="text-align: center; color: gray;">There are previous messages in the conversation <br> that you cannot see. </p>
+
+                </div>
             </div>
     
             <br>
@@ -101,6 +146,8 @@ body {
     var socket = io();
 
     // chat
+    var displayName;
+
     var chat = document.getElementById('chat');
     var chatBox = document.getElementById('chat-box');
 
@@ -111,7 +158,7 @@ body {
     var gifs = [gif1, gif2, gif3];
 
     gif1.onclick = gif2.onclick = gif3.onclick = function(event) {
-        socket.emit('sent-gif', {url: event.target.src});
+        socket.emit('sent-gif', {sender:displayName, url: event.target.src});
     };
 
     const reloadGIFs = function(loaded) {
@@ -136,10 +183,20 @@ body {
         }
     };
 
-    socket.on('recieve-gif', data => {
-        console.log('hellow?');
+    var displayGIF = function(sender, url) {
         // draw the new image
-        chatBox.innerHTML = '<img src="' + data.url + '">' + chatBox.innerHTML;
+
+        var newChat = '<img class="message"" src="' + url + '"> <br> <p> <strong>' + sender + ': </strong> </p>';
+        chatBox.innerHTML = newChat + chatBox.innerHTML;
+
+        //chatBox.innerHTML = '<div class="message-div">' + chatBox.innerHTML;
+        // chatBox.innerHTML = '<p> <strong>' + sender + ': </strong> </p> <br>' + chatBox.innerHTML;
+        // chatBox.innerHTML = '<img class="message"" src="' + url + '">' + chatBox.innerHTML;
+        //chatBox.innerHTML = '</div>' + chatBox.innerHTML;
+    };
+
+    socket.on('recieve-gif', data => {
+        displayGIF(data.sender, data.url);
         reloadGIFs();
     });
 
@@ -148,16 +205,30 @@ body {
     var displayNameField = document.getElementById('display-name-field');
     var displayNameSubmit = document.getElementById('display-name-submit');
 
-    displayNameSubmit.onclick = function() {
-        let displayName = displayNameField.value;
+    displayNameField.addEventListener("keyup", function(event) {
+        if (event.keyCode === 13) {
+            //event.preventDefault();
+            displayNameSubmit.click();
+        }
+    });
 
-        if (displayName) {
-            socket.emit('enter-request', {displayName: displayName});
+    displayNameSubmit.onclick = function() {
+        let displayNameValue = displayNameField.value;
+
+        if (displayNameValue) {
+            socket.emit('enter-request', {displayName: displayNameValue});
+            displayName = displayNameValue;
         }
     };
 
-    socket.on('enter-auth-success', () => {
+    socket.on('enter-auth-success', data => {
         displayNameForm.style = "display: none;";
+
+        // load chat history
+        // for (var message in data.history) {
+        //     displayGIF(message.sender, message.url);
+        // }
+
         chat.style = "display: block;";
         reloadGIFs();
     });
